@@ -11,14 +11,14 @@ if($isAdmin != true) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Admin</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         /* Your existing CSS styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: "Roboto", sans-serif;
             margin: 0;
             display: flex;
             background-color: #f4f4f4;
@@ -26,6 +26,7 @@ if($isAdmin != true) {
 
         .sidebar {
             width: 290px;
+            max-width: 240px;
             background-color: #fff;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -112,11 +113,12 @@ if($isAdmin != true) {
 
         .search-bar input {
             padding: 10px;
+            padding-left: 20px;
             border: 1px solid #0D67A1;
             border-radius: 30px;
             width: 300px;
             margin-right: 10px;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .circle-button {
@@ -148,6 +150,9 @@ if($isAdmin != true) {
 
         .violation-table {
             width: 100%;
+            max-height: 700px !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
@@ -219,6 +224,9 @@ if($isAdmin != true) {
 
         .table-area {
             border: 1px solid #F3F3F3;
+            max-height: 700px;
+            min-height: 700px;
+            overflow-x: hidden !important;
             background-color: #F3F3F3;
             border-radius: 18px;
             padding: 20px;
@@ -283,25 +291,48 @@ if($isAdmin != true) {
         </button>
         <hr>
         <div class="sidebar-content">
-            <a href="#"><i class="bi bi-grid" style="color: #0D67A1; font-size: 24px;"></i> Dashboard</a>
-            <a href="studentlist.php"><i class="bi bi-list" style="color: #0D67A1; font-size: 24px;"></i> Student List</a>
-            <a href="violations.php"><i class="bi bi-list" style="color: #0D67A1; font-size: 24px;"></i> Violations</a>
-            <a href="#" id="addStudentNav" data-bs-toggle="modal" data-bs-target="#addStudentModal">
-                <i class="bi bi-person-plus" style="color: #0D67A1; font-size: 24px;"></i> Add/Remove Student
+            <a href="dashboard.php"><i class="bi bi-grid" style="color: #0D67A1; font-size: 24px;"></i> Dashboard</a>
+            <a href="studentList.php"><i class="bi bi-people" style="color: #0D67A1; font-size: 24px;"></i> Student List</a>
+            <a href="violations.php"><i class="bi bi-table" style="color: #0D67A1; font-size: 24px;"></i> Violations</a>
+            <a href="violations.php" id="addStudentNav" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                <i class="bi bi-person-plus" style="color: #0D67A1; font-size: 24px;"></i> Student Registration
             </a>
+            <!-- Logout Button -->
+            <button type="button" class="btn btn-danger mt-auto" data-bs-toggle="modal" data-bs-target="#logoutModal" style="margin-top: auto; background-color: #0D67A1; border-color: #0D67A1;">
+                Logout
+            </button>
+
+            <!-- Logout Confirmation Modal -->
+            <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Do you really want to log out?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <a href="../php-api/logout.php" class="btn btn-danger" style="background-color: #0D67a1; border-color: #0D67A1;">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="main-content">
         <div class="header">
             <div class="blue__bar">
-                <h2>Dashboard</h2>
+                <h2>Violation Records</h2>
             </div>
             <div class="yellow__bar"></div>
         </div>
 
         <div class="content-area">
-            <div class="table-area">
+            <div class="table-area overflow-auto">
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addViolationModal" id="addViolationStudent">Add Violation</button>
                 <div class="search-bar">
                   <input type="text" id="searchQuery" placeholder="Search by Student No. or Name">
@@ -311,7 +342,7 @@ if($isAdmin != true) {
                   </select>
                   <button class="circle-button" id="searchButton"><i class="bi bi-search"></i></button>
                 </div>
-                <table class="violation-table">
+                <table class="violation-table overflow-auto">
                     <thead>
                         <tr>
                             <th>Student No.</th>

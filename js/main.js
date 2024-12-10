@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
               adminMessage.innerHTML = "Successful!. Redirecting...";
               adminMessage.className = "text-success mt-1";
               setTimeout(() => {
-                window.location.href = "admin/adminIndex.php";
+                window.location.href = "admin/dashboard.php";
             }, 1500);
           } else if(res.status == 'failed') {
             console.log(res.message + ' pass: ' + post.password);
@@ -48,10 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   staffBtn.addEventListener("click", () => {
-    window.location.href = "staffIndex.php";
+    window.location.href = "staff/staffIndex.php";
   });
 
   studentBtn.addEventListener("click", () => {
-      window.location.href = "studentIndex.php";
+      window.location.href = "student/studentIndex.php";
   });
 });

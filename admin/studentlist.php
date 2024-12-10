@@ -14,18 +14,20 @@ if($isAdmin != true) {
     <title>Dashboard</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         /* Your existing CSS styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: "Roboto", sans-serif;
             margin: 0;
             display: flex;
             background-color: #f4f4f4;
         }
 
         .sidebar {
-            width: 290px;
+            width: 290px !important;
+            max-width: 240px !important;
             background-color: #fff;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -112,11 +114,12 @@ if($isAdmin != true) {
 
         .search-bar input {
             padding: 10px;
+            padding-left: 20px;
             border: 1px solid #0D67A1;
             border-radius: 30px;
             width: 300px;
             margin-right: 10px;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .circle-button {
@@ -274,19 +277,42 @@ if($isAdmin != true) {
         </button>
         <hr>
         <div class="sidebar-content">
-            <a href="#"><i class="bi bi-grid" style="color: #0D67A1; font-size: 24px;"></i> Dashboard</a>
-            <a href="studentlist.php"><i class="bi bi-list" style="color: #0D67A1; font-size: 24px;"></i> Student List</a>
-            <a href="violations.php"><i class="bi bi-list" style="color: #0D67A1; font-size: 24px;"></i> Violations</a>
+            <a href="dashboard.php"><i class="bi bi-grid" style="color: #0D67A1; font-size: 24px;"></i> Dashboard</a>
+            <a href="studentList.php"><i class="bi bi-people" style="color: #0D67A1; font-size: 24px;"></i> Student List</a>
+            <a href="violations.php"><i class="bi bi-table" style="color: #0D67A1; font-size: 24px;"></i> Violations</a>
             <a href="violations.php" id="addStudentNav" data-bs-toggle="modal" data-bs-target="#addStudentModal">
-                <i class="bi bi-person-plus" style="color: #0D67A1; font-size: 24px;"></i> Add/Remove Student
+                <i class="bi bi-person-plus" style="color: #0D67A1; font-size: 24px;"></i> Student Registration
             </a>
+            <!-- Logout Button -->
+            <button type="button" class="btn btn-danger mt-auto" data-bs-toggle="modal" data-bs-target="#logoutModal" style="margin-top: auto; background-color: #0D67A1; border-color: #0D67A1;">
+                Logout
+            </button>
+
+            <!-- Logout Confirmation Modal -->
+            <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Do you really want to log out?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <a href="../php-api/logout.php" class="btn btn-danger" style="background-color: #0D67a1; border-color: #0D67A1;">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="main-content">
         <div class="header">
             <div class="blue__bar">
-                <h2>Dashboard</h2>
+                <h2>Student List</h2>
             </div>
             <div class="yellow__bar"></div>
         </div>
@@ -307,7 +333,8 @@ if($isAdmin != true) {
                             <th>Student No.</th>
                             <th>Student Name</th>
                             <th>Year/Program</th>
-                            <th>Number of Violations</th>
+                            <th>No. of Violations</th>
+                            <th>No. of Attendance</th>
                         </tr>
                     </thead>
                     <tbody class="student-table-body">
@@ -327,15 +354,15 @@ if($isAdmin != true) {
                     <h4 style="text-align: center; padding-top: 30px;">Number of Violations</h4>
                     <div class="violations-area">
                         <div class="violations">
-                            <span>Without Uniform</span>
+                            <span>Pending Violations</span>
                             <br/>
-                            <strong id="withoutUniformDisplay">0</strong>
+                            <strong id="pendingViolationsDisplay">0</strong>
                         </div>
                         <br/>
                         <div class="violations">
-                            <span>Without ID</span>
+                            <span>Attendance</span>
                             <br/>
-                            <strong id="withoutIDDisplay">0</strong>
+                            <strong id="attendanceDisplay">0</strong>
                         </div>
                     </div>
                 </div>
@@ -428,11 +455,12 @@ if($isAdmin != true) {
                           data-year="${student.Year}" data-program="${student.ProgramCode}" 
                           data-violations="${student.ViolationCount}"
                           data-without-uniform="${student.WithoutUniformCount}" 
-                          data-without-id="${student.WithoutIDCount}">
+                          data-without-id="${student.WithoutIDCount}" data-attedance-count="${student.AttendanceCount}" data-pending-violations="${student.PendingViolations}">
                           <td>${student.StudentID}</td>
                           <td>${student.StudentName}</td>
                           <td>${student.Year} / ${student.ProgramCode}</td>
                           <td>${student.ViolationCount}</td>
+                          <td>${student.AttendanceCount}</td>
                       </tr>`;
                   tableBody.append(row);
               });
@@ -553,13 +581,16 @@ if($isAdmin != true) {
           const violationCount = $(this).data('violations');
           const withoutUniformCount = $(this).data('without-uniform');
           const withoutIDCount = $(this).data('without-id');
+          const attendanceCount = $(this).data('attedance-count');
+          const pendingViolations = $(this).data('pending-violations');
 
           $('#studentNoDisplay').text(studentID);
           $('#studentNameDisplay').text(studentName);
           $('#studentProgramDisplay').text(`${studentYear} / ${studentProgram}`);
 
           $('#withoutUniformDisplay').text(withoutUniformCount);
-          $('#withoutIDDisplay').text(withoutIDCount);
+          $('#attendanceDisplay').text(attendanceCount);
+          $('#pendingViolationsDisplay').text(pendingViolations);
       });
 
       $('#addStudentModal').on('show.bs.modal', function () {

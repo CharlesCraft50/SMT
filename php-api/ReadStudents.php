@@ -43,14 +43,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         }
 
         // Start constructing SQL query
-        $sql = 'SELECT Students.StudentID, Students.StudentName, Students.Year, Students.ProgramID, 
-		               Programs.ProgramName, Programs.ProgramCode,
-		               COALESCE(COUNT(ViolationRecord.ViolationID), 0) AS ViolationCount,
-		               SUM(CASE WHEN ViolationRecord.ViolationType LIKE "%WithoutUniform%" THEN 1 ELSE 0 END) AS WithoutUniformCount,
-		               SUM(CASE WHEN ViolationRecord.ViolationType LIKE "%WithoutID%" THEN 1 ELSE 0 END) AS WithoutIDCount
-		        FROM Students
-		        LEFT JOIN ViolationRecord ON Students.StudentID = ViolationRecord.StudentID
-		        LEFT JOIN Programs ON Students.ProgramID = Programs.ProgramID';
+        $sql = 'SELECT 
+                    Students.StudentID, 
+                    Students.StudentName, 
+                    Students.Year, 
+                    Students.ProgramID, 
+                    Programs.ProgramName, 
+                    Programs.ProgramCode,
+                    COALESCE(COUNT(ViolationRecord.ViolationID), 0) AS ViolationCount,
+                    SUM(CASE WHEN ViolationRecord.ViolationType LIKE "%WithoutUniform%" THEN 1 ELSE 0 END) AS WithoutUniformCount,
+                    SUM(CASE WHEN ViolationRecord.ViolationType LIKE "%WithoutID%" THEN 1 ELSE 0 END) AS WithoutIDCount,
+                    COALESCE(COUNT(AttendanceRecord.AttendanceID), 0) AS AttendanceCount,
+                    COALESCE(COUNT(CASE WHEN ViolationRecord.ViolationStatus = "Pending" THEN 1 END), 0) AS PendingViolations
+                FROM Students
+                LEFT JOIN ViolationRecord ON Students.StudentID = ViolationRecord.StudentID
+                LEFT JOIN Programs ON Students.ProgramID = Programs.ProgramID
+                LEFT JOIN AttendanceRecord ON Students.StudentID = AttendanceRecord.StudentID';
 
         // Add where clauses if applicable
         if (count($whereClauses) > 0) {
